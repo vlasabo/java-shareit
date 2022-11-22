@@ -41,6 +41,13 @@ public class ItemController {
         return itemService.save(item, userId);
     }
 
+    @PatchMapping("/{id}")
+    public ItemDto updateUserField(@RequestBody ItemDto itemDto,
+                                   @RequestHeader("X-Sharer-User-Id") int userId,
+                                   @PathVariable Integer id) throws NoSuchFieldException, IllegalAccessException {
+        log.debug("patch item {}", itemDto);
+        return itemService.updateFields(id, itemDto, userId);
+    }
 
     @ExceptionHandler(HttpClientErrorException.BadRequest.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -57,6 +64,4 @@ public class ItemController {
                 "No data found", e.getMessage()
         );
     }
-
-
 }

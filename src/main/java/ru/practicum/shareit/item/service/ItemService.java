@@ -7,6 +7,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.patcher.ObjectPatcher;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
@@ -37,9 +38,18 @@ public class ItemService {
         if (userService.findUserById(userId).isEmpty()) {
             throw new NotFoundException("no owner with id " + userId);//check users exist
         }
-        if (item.getOwner() == null) {
-            throw new NotFoundException("no owner!");
-        }
+        item.setOwner(userService.findUserById(userId).get());
         return itemRepository.save(item);
+    }
+
+    public ItemDto updateFields(int id, ItemDto itemDto, int userId) throws NoSuchFieldException, IllegalAccessException {
+        var itemOpt = itemRepository.getItemById(id);
+        if (itemOpt.isEmpty()) {
+            throw new NotFoundException("no item with id " + id);
+        }
+        if (itemOpt.get().getOwner().getId() != userId) {
+            throw new IllegalAccessException("this user isn't owner!");
+        }
+        return ItemMapper.toItemDto((Item) ObjectPatcher.changeFields(itemDto, itemOpt.get()));
     }
 }
