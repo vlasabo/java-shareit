@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Repository
-public class UserRepositoryInMemoryImpl implements UserRepository{
+public class UserRepositoryInMemoryImpl implements UserRepository {
     private final Map<Integer, User> allUsers;
     private static int id;
 
