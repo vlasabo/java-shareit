@@ -1,12 +1,15 @@
 package ru.practicum.shareit.user;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+
+@Data
 public class User {
     private int id;
     private String name;
+    @Email(message = "EMAIL IS INCORRECT")
+    @NotEmpty
     private String email;
 }
