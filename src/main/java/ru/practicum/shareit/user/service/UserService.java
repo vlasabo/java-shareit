@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 import ru.practicum.shareit.patcher.ObjectPatcher;
-import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.xml.bind.ValidationException;
@@ -55,7 +55,9 @@ public class UserService {
     }
 
     public void deleteUserById(int id) {
-        findUserById(id);//check that user exists
+        if (findUserById(id).isEmpty()) {
+            throw new NotFoundException("no user with id " + id);
+        } //check that user exists
         userRepository.deleteUserById(id);
     }
 
@@ -63,7 +65,10 @@ public class UserService {
         if (checkEmailUniqueness(user)) {
             throw new ValidationException("email isn't unique");
         }
-        findUserById(user.getId());
+        if (findUserById(user.getId()).isEmpty()) {
+            throw new NotFoundException("no user with id " + user.getId());
+        } //check that user exists
+
         return UserMapper.toUserDto(userRepository.save(user));
     }
 

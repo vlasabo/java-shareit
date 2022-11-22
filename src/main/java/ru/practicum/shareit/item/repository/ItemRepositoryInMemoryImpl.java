@@ -7,6 +7,7 @@ import ru.practicum.shareit.item.model.Item;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 @RequiredArgsConstructor
@@ -15,8 +16,8 @@ public class ItemRepositoryInMemoryImpl implements ItemRepository {
     private final Map<Integer, Item> allItems;
 
     @Override
-    public Item getItemById(int id) {
-        return allItems.getOrDefault(id, null);
+    public Optional<Item> getItemById(int id) {
+        return Optional.ofNullable(allItems.get(id));
     }
 
     @Override
@@ -25,9 +26,10 @@ public class ItemRepositoryInMemoryImpl implements ItemRepository {
     }
 
     @Override
-    public void save(Item item) {
+    public Item save(Item item) {
         int id = (item.getId() == 0) ? allItems.size() + 1 : item.getId();
         item.setId(id);
         allItems.put(id, item);
+        return item;
     }
 }

@@ -12,7 +12,17 @@ public class ItemMapper {
                 item.getName(),
                 item.getDescription(),
                 item.isAvailable(),
-                item.getItemRequest() != null ? item.getItemRequest().getId() : null
+                item.getId(),
+                item.getItemRequest() != null ? item.getItemRequest() : null
+        );
+    }
+
+    public static Item toItem(ItemDto itemDto) {
+        return new Item(
+                itemDto.getName(),
+                itemDto.getDescription(),
+                itemDto.isAvailable(),
+                itemDto.getId()
         );
     }
 
