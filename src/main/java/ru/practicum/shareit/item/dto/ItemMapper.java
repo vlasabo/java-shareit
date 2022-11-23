@@ -11,7 +11,7 @@ public class ItemMapper {
         return new ItemDto(
                 item.getName(),
                 item.getDescription(),
-                item.isAvailable(),
+                item.getAvailable(),
                 item.getId(),
                 item.getItemRequest() != null ? item.getItemRequest() : null
         );
@@ -21,7 +21,7 @@ public class ItemMapper {
         return new Item(
                 itemDto.getName(),
                 itemDto.getDescription(),
-                itemDto.isAvailable(),
+                itemDto.getAvailable(),
                 itemDto.getId()
         );
     }

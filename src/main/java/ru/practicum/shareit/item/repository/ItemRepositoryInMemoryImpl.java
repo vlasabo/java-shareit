@@ -2,12 +2,15 @@ package ru.practicum.shareit.item.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @RequiredArgsConstructor
@@ -32,4 +35,15 @@ public class ItemRepositoryInMemoryImpl implements ItemRepository {
         allItems.put(id, item);
         return item;
     }
+
+    @Override
+    public List<ItemDto> findItemDtoByDescOrName(String text) {
+        String toFind = text.toLowerCase();
+        return allItems.values().stream()
+                .filter(x -> (x.getName().toLowerCase().contains(toFind)
+                        || x.getDescription().toLowerCase().contains(toFind)))
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
+    }
+
 }

@@ -13,6 +13,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.ValidationException;
 import java.util.List;
 
 @RestController
@@ -23,9 +24,9 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> getAllItems() {
+    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") int userId) {
         log.debug("get all items");
-        return itemService.getAllItems();
+        return itemService.getAllItems(userId);
     }
 
     @GetMapping("/{id}")
@@ -34,11 +35,17 @@ public class ItemController {
         return itemService.findItemDtoById(id);
     }
 
+    @GetMapping("/search")
+    public List<ItemDto> findItemById(@RequestParam String text) {
+        log.debug("find item by request {}", text);
+        return itemService.findItemDtoByDescOrName(text);
+    }
+
     @PostMapping
-    public Item addItem(@Valid @RequestBody Item item,
+    public Item addItem(@Valid @RequestBody ItemDto itemDto,
                         @RequestHeader("X-Sharer-User-Id") int userId) {
-        log.debug("add item {}", item);
-        return itemService.save(item, userId);
+        log.debug("add item {}", itemDto);
+        return itemService.save(itemDto, userId);
     }
 
     @PatchMapping("/{id}")
@@ -62,6 +69,14 @@ public class ItemController {
     public ErrorResponse handle(final NotFoundException e) {
         return new ErrorResponse(
                 "No data found", e.getMessage()
+        );
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handle(final ValidationException e) {
+        return new ErrorResponse(
+                "Incorrect validation", e.getMessage()
         );
     }
 }
