@@ -45,7 +45,7 @@ public class ItemController {
     @PatchMapping("/{id}")
     public ItemDto updateUserField(@RequestBody ItemDto itemDto,
                                    @RequestHeader("X-Sharer-User-Id") int userId,
-                                   @PathVariable Integer id) throws NoSuchFieldException, IllegalAccessException {
+                                   @PathVariable Integer id) {
         log.debug("patch item {}", itemDto);
         return itemService.updateFields(id, itemDto, userId);
     }
