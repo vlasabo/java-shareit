@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository {
-    public Optional<User> getUserById(int id);
+    Optional<User> getUserById(int id);
 
-    public List<User> getAllUsers();
+    List<User> getAllUsers();
 
-    public User save(User user);
+    User save(User user);
 
     void deleteUserById(int id);
 }

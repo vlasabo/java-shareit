@@ -30,7 +30,7 @@ public class ItemRepositoryInMemoryImpl implements ItemRepository {
 
     @Override
     public Item save(Item item) {
-        int id = (item.getId() == 0) ? allItems.size() + 1 : item.getId();
+        int id = allItems.size() + 1;
         item.setId(id);
         allItems.put(id, item);
         return item;
@@ -42,6 +42,7 @@ public class ItemRepositoryInMemoryImpl implements ItemRepository {
         return allItems.values().stream()
                 .filter(x -> (x.getName().toLowerCase().contains(toFind)
                         || x.getDescription().toLowerCase().contains(toFind)))
+                .filter(Item::getAvailable)
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }

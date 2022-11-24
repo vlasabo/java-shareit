@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ItemRepository {
-    public Optional<Item> getItemById(int id);
+    Optional<Item> getItemById(int id);
 
-    public List<Item> getAllItems();
+    List<Item> getAllItems();
 
-    public Item save(Item item);
+    Item save(Item item);
 
     List<ItemDto> findItemDtoByDescOrName(String text);
 }

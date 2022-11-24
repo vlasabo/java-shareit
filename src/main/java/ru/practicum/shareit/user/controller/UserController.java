@@ -8,7 +8,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
-import javax.xml.bind.ValidationException;
 import java.util.List;
 
 
@@ -20,7 +19,7 @@ public class UserController {
     private final UserService userService;
 
     @PutMapping
-    public UserDto updateUser(@Valid @RequestBody User user) throws ValidationException {
+    public UserDto updateUser(@Valid @RequestBody User user) {
         return userService.update(user);
     }
 
@@ -43,16 +42,15 @@ public class UserController {
     }
 
     @PostMapping()
-    public UserDto addUser(@Valid @RequestBody User user) throws ValidationException {
+    public UserDto addUser(@Valid @RequestBody User user) {
         log.debug("add user {}", user);
         return userService.save(user);
     }
 
     @PatchMapping("/{id}")
-    public UserDto updateUserField(@RequestBody User user,
-                                   @PathVariable Integer id)
-            throws IllegalAccessException, NoSuchFieldException, ValidationException {
-        log.debug("patch user {}", user);
-        return userService.updateFields(id, user);
+    public UserDto updateUserField(@RequestBody UserDto userDto,
+                                   @PathVariable Integer id) {
+        log.debug("patch user {}", userDto);
+        return userService.updateFields(id, userDto);
     }
 }

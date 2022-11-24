@@ -5,9 +5,8 @@ import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.patcher.ItemPatcher;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.patcher.ObjectPatcher;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.ValidationException;
@@ -33,13 +32,13 @@ public class ItemService {
         if (itemDtoOpt.isPresent()) {
             return ItemMapper.toItemDto(itemDtoOpt.get());
         } else {
-            throw new NotFoundException("no item with this id!");
+            throw new NotFoundException("no item with this id!" + id);
         }
     }
 
     public ItemDto save(ItemDto itemDto, int userId) {
         if (userService.findUserById(userId).isEmpty()) {
-            throw new NotFoundException("no owner with id " + userId);//check users exist
+            throw new NotFoundException("no owner with id " + userId); //check users exist
         }
         if (itemDto.getAvailable() == null || "".equals(itemDto.getName()) || "".equals(itemDto.getDescription())
                 || itemDto.getName() == null || itemDto.getDescription() == null) {
@@ -50,7 +49,7 @@ public class ItemService {
         return ItemMapper.toItemDto(itemRepository.save(itemDto));
     }
 
-    public ItemDto updateFields(int id, ItemDto itemDto, int userId) throws NoSuchFieldException, IllegalAccessException {
+    public ItemDto updateFields(int id, ItemDto itemDto, int userId) {
         var itemOpt = itemRepository.getItemById(id);
         if (itemOpt.isEmpty()) {
             throw new NotFoundException("no item with id " + id);
@@ -58,15 +57,13 @@ public class ItemService {
         if (itemOpt.get().getOwner().getId() != userId) {
             throw new NotFoundException("this user isn't owner!");
         }
-        return ItemMapper.toItemDto((Item) ObjectPatcher.changeFields(itemDto, itemOpt.get()));
+        return ItemMapper.toItemDto(ItemPatcher.patchItem(itemOpt.get(), itemDto));
     }
 
     public List<ItemDto> findItemDtoByDescOrName(String text) {
         if (text.length() == 0) {
             return new ArrayList<>();
         }
-        return itemRepository.findItemDtoByDescOrName(text).stream()
-                .filter(ItemDto::getAvailable)
-                .collect(Collectors.toList());
+        return itemRepository.findItemDtoByDescOrName(text);
     }
 }

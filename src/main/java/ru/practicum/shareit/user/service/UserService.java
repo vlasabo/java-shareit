@@ -3,13 +3,13 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
-import ru.practicum.shareit.patcher.ObjectPatcher;
+import ru.practicum.shareit.exception.CustomValidateException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.patcher.UserPatcher;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import javax.xml.bind.ValidationException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,9 +21,9 @@ public class UserService {
     private final UserRepository userRepository;
 
 
-    public UserDto save(User user) throws ValidationException {
+    public UserDto save(User user) {
         if (checkEmailUniqueness(user)) {
-            throw new ValidationException("email isn't unique");
+            throw new CustomValidateException("email isn't unique");
         }
         User userSaved = userRepository.save(user);
         return UserMapper.toUserDto(userSaved);
@@ -33,7 +33,8 @@ public class UserService {
         String email = user.getEmail();
         return userRepository.getAllUsers()
                 .stream()
-                .anyMatch(user1 -> (Objects.equals(user1.getEmail(), email) && !Objects.equals(user1.getId(), user.getId())));
+                .anyMatch(checkedUser -> (Objects.equals(checkedUser.getEmail(), email)
+                        && !Objects.equals(checkedUser.getId(), user.getId())));
     }
 
     public List<UserDto> getAllUsers() {
@@ -61,9 +62,9 @@ public class UserService {
         userRepository.deleteUserById(id);
     }
 
-    public UserDto update(User user) throws ValidationException {
+    public UserDto update(User user) {
         if (checkEmailUniqueness(user)) {
-            throw new ValidationException("email isn't unique");
+            throw new CustomValidateException("email isn't unique");
         }
         if (findUserById(user.getId()).isEmpty()) {
             throw new NotFoundException("no user with id " + user.getId());
@@ -72,16 +73,15 @@ public class UserService {
         return UserMapper.toUserDto(userRepository.save(user));
     }
 
-    public UserDto updateFields(int id, User user)
-            throws IllegalAccessException, NoSuchFieldException, ValidationException {
+    public UserDto updateFields(int id, UserDto user) {
         if (checkEmailUniqueness(user)) {
-            throw new ValidationException("email isn't unique");
+            throw new CustomValidateException("email isn't unique");
         }
         var userFromDbOpt = findUserById(id);
         if (userFromDbOpt.isEmpty()) {
             throw new NotFoundException("mo user with id " + id);
         }
-        return save((User) ObjectPatcher.changeFields(user, userFromDbOpt.get()));
+        return save(UserPatcher.patchUser(userFromDbOpt.get(), user));
     }
 
 
