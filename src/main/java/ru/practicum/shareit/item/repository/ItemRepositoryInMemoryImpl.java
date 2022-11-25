@@ -37,7 +37,7 @@ public class ItemRepositoryInMemoryImpl implements ItemRepository {
     }
 
     @Override
-    public List<ItemDto> findItemDtoByDescOrName(String text) {
+    public List<ItemDto> findAvailableItemDtoByDescOrName(String text) {
         String toFind = text.toLowerCase();
         return allItems.values().stream()
                 .filter(x -> (x.getName().toLowerCase().contains(toFind)

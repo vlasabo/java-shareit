@@ -7,7 +7,6 @@ import ru.practicum.shareit.exception.CustomValidateException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.patcher.UserPatcher;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
@@ -47,7 +46,7 @@ public class UserService {
         if (userDtoOpt.isPresent()) {
             return UserMapper.toUserDto(userDtoOpt.get());
         } else {
-            throw new NotFoundException("no user with this id!");
+            throw new NotFoundException("no user with id" + id);
         }
     }
 
@@ -81,7 +80,17 @@ public class UserService {
         if (userFromDbOpt.isEmpty()) {
             throw new NotFoundException("mo user with id " + id);
         }
-        return save(UserPatcher.patchUser(userFromDbOpt.get(), user));
+        return save(patchUser(userFromDbOpt.get(), user));
+    }
+
+    private User patchUser(User user, UserDto userDto) {
+        if (userDto.getName() != null) {
+            user.setName(userDto.getName());
+        }
+        if (userDto.getEmail() != null) {
+            user.setEmail(userDto.getEmail());
+        }
+        return user;
     }
 
 

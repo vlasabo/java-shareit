@@ -13,5 +13,5 @@ public interface ItemRepository {
 
     Item save(Item item);
 
-    List<ItemDto> findItemDtoByDescOrName(String text);
+    List<ItemDto> findAvailableItemDtoByDescOrName(String text);
 }

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.patcher.ItemPatcher;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -57,13 +57,29 @@ public class ItemService {
         if (itemOpt.get().getOwner().getId() != userId) {
             throw new NotFoundException("this user isn't owner!");
         }
-        return ItemMapper.toItemDto(ItemPatcher.patchItem(itemOpt.get(), itemDto));
+        return ItemMapper.toItemDto(patchItem(itemOpt.get(), itemDto));
+    }
+
+    private Item patchItem(Item item, ItemDto itemDto) {
+        if (itemDto.getAvailable() != null) {
+            item.setAvailable(itemDto.getAvailable());
+        }
+        if (itemDto.getName() != null) {
+            item.setName(itemDto.getName());
+        }
+        if (itemDto.getDescription() != null) {
+            item.setDescription(itemDto.getDescription());
+        }
+        if (itemDto.getItemRequest() != null) {
+            item.setItemRequest(itemDto.getItemRequest());
+        }
+        return item;
     }
 
     public List<ItemDto> findItemDtoByDescOrName(String text) {
         if (text.length() == 0) {
             return new ArrayList<>();
         }
-        return itemRepository.findItemDtoByDescOrName(text);
+        return itemRepository.findAvailableItemDtoByDescOrName(text);
     }
 }
