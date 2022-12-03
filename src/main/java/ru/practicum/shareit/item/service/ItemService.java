@@ -21,14 +21,14 @@ public class ItemService {
     private final UserService userService;
 
     public List<ItemDto> getAllItems(int userId) {
-        return itemRepository.getAllItems().stream()
-                .filter(x -> x.getOwner().getId() == userId)
+        return itemRepository.findAll().stream()
+                .filter(x -> x.getOwnerId() == userId)
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
     public ItemDto findItemDtoById(Integer id) {
-        var itemDtoOpt = itemRepository.getItemById(id);
+        var itemDtoOpt = itemRepository.findById(id);
         if (itemDtoOpt.isPresent()) {
             return ItemMapper.toItemDto(itemDtoOpt.get());
         } else {
@@ -46,18 +46,20 @@ public class ItemService {
         }
 
         itemDto.setOwner(userService.findUserById(userId).get());
-        return ItemMapper.toItemDto(itemRepository.save(itemDto));
+        Item item = ItemMapper.toItem(itemDto);
+        item.setOwnerId(userId);
+        return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
     public ItemDto updateFields(int id, ItemDto itemDto, int userId) {
-        var itemOpt = itemRepository.getItemById(id);
+        var itemOpt = itemRepository.findById(id);
         if (itemOpt.isEmpty()) {
             throw new NotFoundException("no item with id " + id);
         }
-        if (itemOpt.get().getOwner().getId() != userId) {
+        if (itemOpt.get().getOwnerId() != userId) {
             throw new NotFoundException("this user isn't owner!");
         }
-        return ItemMapper.toItemDto(patchItem(itemOpt.get(), itemDto));
+        return ItemMapper.toItemDto(itemRepository.save(patchItem(itemOpt.get(), itemDto)));
     }
 
     private Item patchItem(Item item, ItemDto itemDto) {
@@ -80,6 +82,12 @@ public class ItemService {
         if (text.length() == 0) {
             return new ArrayList<>();
         }
-        return itemRepository.findAvailableItemDtoByDescOrName(text);
+        return itemRepository.findAll() //TODO: это надо переделать
+                .stream()
+                .filter(Item::getAvailable)
+                .filter(x -> x.getDescription().toLowerCase().contains(text.toLowerCase()) ||
+                        x.getName().toLowerCase().contains(text.toLowerCase()))
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 }
