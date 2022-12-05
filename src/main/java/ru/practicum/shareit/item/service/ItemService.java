@@ -82,11 +82,7 @@ public class ItemService {
         if (text.length() == 0) {
             return new ArrayList<>();
         }
-        return itemRepository.findAll() //TODO: это надо переделать
-                .stream()
-                .filter(Item::getAvailable)
-                .filter(x -> x.getDescription().toLowerCase().contains(text.toLowerCase()) ||
-                        x.getName().toLowerCase().contains(text.toLowerCase()))
+        return itemRepository.searchAvailableItemByNameOrDescr(text, true).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
