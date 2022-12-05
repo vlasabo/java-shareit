@@ -86,4 +86,19 @@ public class ItemService {
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
+
+    public Item findItemById(Integer id) {
+        var itemOpt = itemRepository.findById(id);
+        if (itemOpt.isPresent()) {
+            Item item = itemOpt.get();
+            var userOpt = userService.findUserById(item.getOwnerId());
+            if (userOpt.isEmpty()) {
+                throw new NotFoundException("no user with this id!" + item.getOwnerId());
+            }
+            item.setOwner(userOpt.get());
+            return item;
+        } else {
+            throw new NotFoundException("no item with this id!" + id);
+        }
+    }
 }

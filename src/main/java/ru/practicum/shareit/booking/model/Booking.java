@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +24,7 @@ public class Booking {
     @Transient
     private Item item;
     private int itemId;
+    private Integer itemOwnerId;
     @Transient
     private User booker;
     private Integer userId;
