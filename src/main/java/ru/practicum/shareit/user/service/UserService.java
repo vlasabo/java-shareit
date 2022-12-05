@@ -21,9 +21,9 @@ public class UserService {
 
 
     public UserDto save(User user) {
-        if (checkEmailUniqueness(user)) {
+        /*if (checkEmailUniqueness(user)) {
             throw new CustomValidateException("email isn't unique");
-        }
+        }*/
         User userSaved = userRepository.save(user);
         return UserMapper.toUserDto(userSaved);
     }
