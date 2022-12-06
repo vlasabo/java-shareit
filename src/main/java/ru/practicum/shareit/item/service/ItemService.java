@@ -5,9 +5,11 @@ import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.item.dto.Comment;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -23,6 +25,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
     private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
 
 
     public List<ItemDto> getAllItems(int userId) {
@@ -31,7 +34,16 @@ public class ItemService {
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
         itemsList.forEach(this::setBookingsToItemDto);
+        itemsList.forEach(this::addCommentsToItemDto);
         return itemsList;
+    }
+
+    private ItemDto addCommentsToItemDto(ItemDto itemDto) {
+        List<Comment> listComments = commentRepository.findAllByItemId(itemDto.getId());
+        listComments.forEach(comment ->
+                comment.setAuthorName(userService.findUserDtoById(comment.getAuthorId()).getName()));
+        itemDto.setComments(listComments);
+        return itemDto;
     }
 
     private ItemDto setBookingsToItemDto(ItemDto item) {
@@ -45,12 +57,12 @@ public class ItemService {
     }
 
     public ItemDto findItemDtoById(Integer id, Integer userId) {
-        var itemDtoOpt = itemRepository.findById(id);
-        if (itemDtoOpt.isPresent()) {
-            if (itemDtoOpt.get().getOwnerId().equals(userId)) {
-                return setBookingsToItemDto(ItemMapper.toItemDto(itemDtoOpt.get()));
+        var itemOpt = itemRepository.findById(id);
+        if (itemOpt.isPresent()) {
+            if (itemOpt.get().getOwnerId().equals(userId)) {
+                return addCommentsToItemDto(setBookingsToItemDto(ItemMapper.toItemDto(itemOpt.get())));
             }
-            return ItemMapper.toItemDto(itemDtoOpt.get());
+            return addCommentsToItemDto(ItemMapper.toItemDto(itemOpt.get()));
         } else {
             throw new NotFoundException("no item with this id!" + id);
         }
@@ -119,6 +131,27 @@ public class ItemService {
             return item;
         } else {
             throw new NotFoundException("no item with this id!" + id);
+        }
+    }
+
+    public Comment addComment(int userId, Integer itemId, Comment comment) {
+        if (comment.getText().isBlank()) {
+            throw new ValidationException("empty comment in " + comment);
+        }
+        checkUserTakeItem(userId, itemId);
+        comment.setAuthorId(userId);
+        comment.setItemId(itemId);
+        comment.setCreated(LocalDateTime.now());
+        comment.setAuthorName(userService.findUserDtoById(userId).getName());
+        commentRepository.save(comment);
+        return comment;
+    }
+
+    private void checkUserTakeItem(int userId, int itemId) {
+        if (bookingRepository
+                .findByUserIdAndItemIdAndStartBefore(userId, itemId, LocalDateTime.now())
+                .isEmpty()) {
+            throw new ValidationException("cant find booking for item " + itemId + " from user " + userId);
         }
     }
 }
