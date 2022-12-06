@@ -1,9 +1,3 @@
-drop table booking;
-drop table comments;
-drop table items;
-drop table item_request;
-drop table users;
-
 
 CREATE TABLE IF NOT EXISTS users
 (
