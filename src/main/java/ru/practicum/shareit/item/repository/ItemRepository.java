@@ -12,4 +12,7 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
             " or upper(i.description) like upper(concat('%', ?1, '%'))) " +
             "and i.available = ?2")
     List<Item> searchAvailableItemByNameOrDescr(String text, boolean available);
+
+    List<Item> findAllByOwnerIdOrderById(int id);
+
 }

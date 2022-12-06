@@ -32,7 +32,7 @@ public class BookingService {
         checkBooking(booking);
         booking.setUserId(userId);
         booking.setStatus(BookingStatus.WAITING);
-        return bookingRepository.save(buildBooking(booking));
+        return bookingRepository.save(buildBooking(booking, userId));
     }
 
     private void checkBooking(Booking booking) {
@@ -52,8 +52,8 @@ public class BookingService {
         }
     }
 
-    private void checkItemAvailable(Booking booking) {
-        if (!itemService.findItemDtoById(booking.getItemId()).getAvailable()) {
+    private void checkItemAvailable(Booking booking, Integer userId) {
+        if (!itemService.findItemDtoById(booking.getItemId(), userId).getAvailable()) {
             throw new ValidationException("incorrect adding booking" + booking.getId());
         }
     }
@@ -66,7 +66,7 @@ public class BookingService {
         if (bookingOpt.get().getStatus() == BookingStatus.APPROVED) {
             throw new ValidationException("try to change status approved booking" + bookingId);
         }
-        Booking booking = buildBooking(bookingOpt.get());
+        Booking booking = buildBooking(bookingOpt.get(), userId);
         if (!Objects.equals(booking.getItem().getOwnerId(), userId)) {
             throw new NotFoundException(userId + " isn't owner item " + booking.getItem());
         }
@@ -87,7 +87,7 @@ public class BookingService {
         if (bookingOpt.isEmpty()) {
             throw new NotFoundException("incorrect bookingId " + bookingId);
         } else {
-            booking = buildBooking(bookingOpt.get());
+            booking = buildBooking(bookingOpt.get(), userId);
         }
 
         if (!Objects.equals(booking.getUserId(), userId) && booking.getItem().getOwner().getId() != userId) {
@@ -97,10 +97,10 @@ public class BookingService {
         return booking;
     }
 
-    private Booking buildBooking(Booking booking) {
+    private Booking buildBooking(Booking booking, Integer userId) {
         Item item = itemService.findItemById(booking.getItemId());
         booking.setItem(item);
-        checkItemAvailable(booking);
+        checkItemAvailable(booking, userId);
         booking.setBooker(getUser(booking));
         booking.setItemOwnerId(item.getOwnerId());
         if (Objects.equals(booking.getItem().getOwnerId(), booking.getUserId())) {
@@ -134,7 +134,7 @@ public class BookingService {
                 resultList = bookingRepository.findAllByUserIdOrderByStartDesc(userId);
         }
         return resultList.stream()
-                .map(this::buildBooking)
+                .map(booking -> buildBooking(booking, userId))
                 .collect(Collectors.toList());
     }
 
@@ -164,7 +164,8 @@ public class BookingService {
                 resultList = bookingRepository.findAllByItemOwnerIdOrderByStartDesc(userId);
         }
         return resultList.stream()
-                .map(this::buildBooking)
+                .map(booking -> buildBooking(booking, userId))
                 .collect(Collectors.toList());
     }
+
 }

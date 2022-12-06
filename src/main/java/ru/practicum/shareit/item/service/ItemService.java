@@ -3,6 +3,8 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
+import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -10,6 +12,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.ValidationException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,17 +22,34 @@ import java.util.stream.Collectors;
 public class ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
+    private final BookingRepository bookingRepository;
+
 
     public List<ItemDto> getAllItems(int userId) {
-        return itemRepository.findAll().stream()
-                .filter(x -> x.getOwnerId() == userId)
+        var itemsList = itemRepository.findAllByOwnerIdOrderById(userId)
+                .stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
+        itemsList.forEach(this::setBookingsToItemDto);
+        return itemsList;
     }
 
-    public ItemDto findItemDtoById(Integer id) {
+    private ItemDto setBookingsToItemDto(ItemDto item) {
+        item.setLastBooking(
+                BookingMapper.toBookingWithItemDto(bookingRepository
+                        .findFirstByItemIdAndStartBeforeOrderByStartDesc(item.getId(), LocalDateTime.now())));
+        item.setNextBooking(
+                BookingMapper.toBookingWithItemDto(bookingRepository
+                        .findFirstByItemIdAndStartAfterOrderByStart(item.getId(), LocalDateTime.now())));
+        return item;
+    }
+
+    public ItemDto findItemDtoById(Integer id, Integer userId) {
         var itemDtoOpt = itemRepository.findById(id);
         if (itemDtoOpt.isPresent()) {
+            if (itemDtoOpt.get().getOwnerId().equals(userId)) {
+                return setBookingsToItemDto(ItemMapper.toItemDto(itemDtoOpt.get()));
+            }
             return ItemMapper.toItemDto(itemDtoOpt.get());
         } else {
             throw new NotFoundException("no item with this id!" + id);
