@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.dto.Comment;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -15,8 +16,7 @@ import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,40 +29,70 @@ public class ItemService {
 
 
     public List<ItemDto> getAllItems(int userId) {
-        var itemsList = itemRepository.findAllByOwnerIdOrderById(userId)
-                .stream()
+        var itemsList = itemRepository.findAllByOwnerIdOrderById(userId);
+        var itemIdList = itemsList.stream()
+                .map(Item::getId)
+                .collect(Collectors.toList());
+        var allItemsBookingList = bookingRepository.findAllByItemIdIn(itemIdList);
+
+        var allItemsCommentList = commentRepository.findAllByItemIdIn(itemIdList);
+        var allAuthorsIdList = allItemsCommentList.stream()
+                .map(Comment::getAuthorId)
+                .collect(Collectors.toList());
+        Map<Integer, String> allUsers = userService.findAllUsersInList(allAuthorsIdList);
+        var itemsDtoList = itemsList.stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
-        itemsList.forEach(this::setBookingsToItemDto);
-        itemsList.forEach(this::addCommentsToItemDto);
-        return itemsList;
+        itemsDtoList.forEach(itemDto -> setBookingsToItemDto(itemDto, allItemsBookingList));
+        itemsDtoList.forEach(itemDto -> addCommentsToItemDto(itemDto, allItemsCommentList, allUsers));
+        return itemsDtoList;
     }
 
-    private ItemDto addCommentsToItemDto(ItemDto itemDto) {
-        List<Comment> listComments = commentRepository.findAllByItemId(itemDto.getId());
+    private ItemDto addCommentsToItemDto(ItemDto itemDto, List<Comment> allItemsCommentList, Map<Integer, String> allUsers) {
+        List<Comment> listComments = allItemsCommentList.stream()
+                .filter(iDto -> Objects.equals(itemDto.getId(), iDto.getItemId()))
+                .collect(Collectors.toList());
         listComments.forEach(comment ->
-                comment.setAuthorName(userService.findUserDtoById(comment.getAuthorId()).getName()));
+                comment.setAuthorName(allUsers.get(comment.getAuthorId())));
         itemDto.setComments(listComments);
         return itemDto;
     }
 
-    private ItemDto setBookingsToItemDto(ItemDto item) {
-        item.setLastBooking(
-                BookingMapper.toBookingWithItemDto(bookingRepository
-                        .findFirstByItemIdAndStartBeforeOrderByStartDesc(item.getId(), LocalDateTime.now())));
-        item.setNextBooking(
-                BookingMapper.toBookingWithItemDto(bookingRepository
-                        .findFirstByItemIdAndStartAfterOrderByStart(item.getId(), LocalDateTime.now())));
+    private ItemDto setBookingsToItemDto(ItemDto item, List<Booking> allItemsBookingList) {
+        var thisItemBookingListSorted = allItemsBookingList.stream()
+                .filter(booking -> booking.getItemId() == item.getId())
+                .sorted(Comparator.comparing(Booking::getStart))
+                .collect(Collectors.toList());
+
+        var lastList = thisItemBookingListSorted.stream()
+                .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
+                .collect(Collectors.toList());
+        Booking last = lastList.size() > 0 ? lastList.get(lastList.size() - 1) : null;
+
+        var nextList = thisItemBookingListSorted.stream()
+                .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
+                .collect(Collectors.toList());
+        Booking next = nextList.size() > 0 ? nextList.get(0) : null;
+
+        item.setLastBooking(BookingMapper.toBookingWithItemDto(last));
+        item.setNextBooking(BookingMapper.toBookingWithItemDto(next));
         return item;
     }
 
     public ItemDto findItemDtoById(Integer id, Integer userId) {
         var itemOpt = itemRepository.findById(id);
         if (itemOpt.isPresent()) {
+            var commentList = commentRepository.findAllByItemId(id);
+            var userListFromComment = userService.findAllUsersInList(commentList.stream()
+                    .map(Comment::getAuthorId)
+                    .collect(Collectors.toList()));
             if (itemOpt.get().getOwnerId().equals(userId)) {
-                return addCommentsToItemDto(setBookingsToItemDto(ItemMapper.toItemDto(itemOpt.get())));
+                var allItemsBookingList = bookingRepository.findAllByItemIdIn(List.of(id));
+                return addCommentsToItemDto(setBookingsToItemDto(ItemMapper.toItemDto(itemOpt.get()), allItemsBookingList),
+                        commentList, userListFromComment);
             }
-            return addCommentsToItemDto(ItemMapper.toItemDto(itemOpt.get()));
+            return addCommentsToItemDto(ItemMapper.toItemDto(itemOpt.get()),
+                    commentRepository.findAllByItemId(id), userListFromComment);
         } else {
             throw new NotFoundException("no item with this id!" + id);
         }

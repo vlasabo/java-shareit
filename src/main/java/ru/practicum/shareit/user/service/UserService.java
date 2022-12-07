@@ -10,6 +10,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,9 +22,6 @@ public class UserService {
 
 
     public UserDto save(User user) {
-        /*if (checkEmailUniqueness(user)) {
-            throw new CustomValidateException("email isn't unique");
-        }*/
         User userSaved = userRepository.save(user);
         return UserMapper.toUserDto(userSaved);
     }
@@ -93,5 +91,9 @@ public class UserService {
         return user;
     }
 
+    public Map<Integer, String> findAllUsersInList(List<Integer> usersId) {
+        return userRepository.findAllByIdIn(usersId).stream()
+                .collect(Collectors.toConcurrentMap(User::getId, User::getName));
+    }
 
 }
