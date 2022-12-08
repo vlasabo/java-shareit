@@ -37,4 +37,12 @@ public class ErrorHandler {
                 "Incorrect validation", e.getMessage()
         );
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handle(final IllegalArgumentException e) {
+        return new ErrorResponse(
+                "Unknown state: UNSUPPORTED_STATUS", e.getMessage()
+        );
+    }
 }

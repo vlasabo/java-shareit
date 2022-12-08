@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.shareit.user.model.User;
 
+import javax.persistence.Transient;
 import java.time.LocalDateTime;
 
 @Getter
@@ -11,6 +12,8 @@ import java.time.LocalDateTime;
 public class ItemRequest {
     private int id;
     private String description;
+    @Transient
     private User requestor;
+    private int userId;
     private LocalDateTime created;
 }

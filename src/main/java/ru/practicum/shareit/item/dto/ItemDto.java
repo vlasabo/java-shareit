@@ -1,17 +1,36 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import ru.practicum.shareit.booking.dto.BookingWithItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @AllArgsConstructor
-@Data
+@NoArgsConstructor
+@Getter
+@Setter
 public class ItemDto extends Item {
     private String name;
     private String description;
     private Boolean available;
     private int id;
     private ItemRequest itemRequest;
+    BookingWithItemDto lastBooking;
+    BookingWithItemDto nextBooking;
+    private List<Comment> comments = new ArrayList<>();
+
+    public ItemDto(String name, String description, Boolean available, int id, ItemRequest itemRequest) {
+        this.name = name;
+        this.description = description;
+        this.available = available;
+        this.id = id;
+        this.itemRequest = itemRequest;
+    }
 }

@@ -10,6 +10,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,28 +22,25 @@ public class UserService {
 
 
     public UserDto save(User user) {
-        if (checkEmailUniqueness(user)) {
-            throw new CustomValidateException("email isn't unique");
-        }
         User userSaved = userRepository.save(user);
         return UserMapper.toUserDto(userSaved);
     }
 
     private boolean checkEmailUniqueness(User user) {
         String email = user.getEmail();
-        return userRepository.getAllUsers()
+        return userRepository.findAll()
                 .stream()
                 .anyMatch(checkedUser -> (Objects.equals(checkedUser.getEmail(), email)
                         && !Objects.equals(checkedUser.getId(), user.getId())));
     }
 
     public List<UserDto> getAllUsers() {
-        List<User> allUsers = userRepository.getAllUsers();
+        List<User> allUsers = userRepository.findAll();
         return allUsers.stream().map(UserMapper::toUserDto).collect(Collectors.toList());
     }
 
     public UserDto findUserDtoById(int id) {
-        var userDtoOpt = userRepository.getUserById(id);
+        var userDtoOpt = userRepository.findById(id);
         if (userDtoOpt.isPresent()) {
             return UserMapper.toUserDto(userDtoOpt.get());
         } else {
@@ -51,14 +49,14 @@ public class UserService {
     }
 
     public Optional<User> findUserById(int id) {
-        return userRepository.getUserById(id);
+        return userRepository.findById(id);
     }
 
     public void deleteUserById(int id) {
         if (findUserById(id).isEmpty()) {
             throw new NotFoundException("no user with id " + id);
         } //check that user exists
-        userRepository.deleteUserById(id);
+        userRepository.deleteById(id);
     }
 
     public UserDto update(User user) {
@@ -93,5 +91,9 @@ public class UserService {
         return user;
     }
 
+    public Map<Integer, String> findAllUsersInList(List<Integer> usersId) {
+        return userRepository.findAllByIdIn(usersId).stream()
+                .collect(Collectors.toConcurrentMap(User::getId, User::getName));
+    }
 
 }
