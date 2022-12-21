@@ -85,8 +85,7 @@ public class UserControllerTests {
         when(userService.getAllUsers())
                 .thenReturn(List.of(userDto));
 
-        mockMvc.perform(get("/users")
-                        .content(objectMapper.writeValueAsString(List.of(userDto))))
+        mockMvc.perform(get("/users"))
                 .andExpect(status().isOk());
     }
 
@@ -109,7 +108,7 @@ public class UserControllerTests {
 
     @Test
     void patchUserTest() throws Exception {
-        mockMvc.perform(post("/users")
+        mockMvc.perform(patch("/users")
                 .content(objectMapper.writeValueAsString(userDto)));
         userDto.setName("updated2");
         when(userService.updateFields(anyInt(), any()))
