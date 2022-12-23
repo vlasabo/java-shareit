@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.shareit.booking.dto.BookingWithItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.model.ItemRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,11 +26,13 @@ public class ItemDto extends Item {
     BookingWithItemDto nextBooking;
     private List<Comment> comments = new ArrayList<>();
 
-    public ItemDto(String name, String description, Boolean available, int id, ItemRequest itemRequest) {
+    public ItemDto(String name, String description, Boolean available, int id, Integer itemRequestId) {
         this.name = name;
         this.description = description;
         this.available = available;
         this.id = id;
-        this.itemRequest = itemRequest;
+        super.setRequestId(itemRequestId);
     }
+
+
 }

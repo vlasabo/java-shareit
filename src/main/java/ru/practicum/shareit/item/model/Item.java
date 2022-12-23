@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -30,9 +30,11 @@ public class Item {
     private Integer ownerId;
     private Integer requestId;
 
-    public Item(String name, String description, boolean available) {
+    public Item(String name, String description, boolean available, Integer requestId) {
         this.name = name;
         this.description = description;
         this.available = available;
+        this.requestId = requestId;
     }
+
 }

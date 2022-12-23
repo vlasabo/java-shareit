@@ -58,6 +58,7 @@ public class UserControllerTests {
     void saveNewUserTest() throws Exception {
         when(userService.save(any()))
                 .thenReturn(userDto);
+
         mockMvc.perform(post("/users")
                         .content(objectMapper.writeValueAsString(userDto))
                         .characterEncoding(StandardCharsets.UTF_8)
