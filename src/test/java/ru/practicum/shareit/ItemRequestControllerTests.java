@@ -12,18 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.controller.ItemRequestController;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
-import ru.practicum.shareit.user.dto.UserDto;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,11 +42,10 @@ public class ItemRequestControllerTests {
     @InjectMocks
     private ItemRequestController controller;
     private ItemRequestDto itemRequestDto;
-    private UserDto userDto;
-    private ItemDto itemDto;
+
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         mockMvc = MockMvcBuilders
                 .standaloneSetup(controller)
                 .build();
@@ -55,20 +54,6 @@ public class ItemRequestControllerTests {
                 "desc",
                 1,
                 LocalDateTime.now());
-        /*userDto = new UserDto(
-                1,
-                "vlasabo",
-                "Aa@bb.com");
-        itemDto = new ItemDto("name",
-                "desc",
-                true,
-                1,
-                null);
-
-        mockMvc.perform(post("/users")
-                .content(objectMapper.writeValueAsString(userDto)));
-        mockMvc.perform(post("/items")
-                .content(objectMapper.writeValueAsString(itemDto)));*/
     }
 
     @Test
@@ -82,6 +67,32 @@ public class ItemRequestControllerTests {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(itemRequestDto)));
+    }
+
+    @Test
+    void getAllRequestsByUserId() throws Exception {
+        when(itemRequestService.getAllRequestsByUserId(anyInt()))
+                .thenReturn(List.of(itemRequestDto));
+
+        mockMvc.perform(get("/requests")
+                        .header("X-Sharer-User-Id", 1)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(List.of(itemRequestDto))));
+    }
+
+    @Test
+    void getRequestById() throws Exception {
+        when(itemRequestService.getRequestById(anyInt(), anyInt()))
+                .thenReturn(itemRequestDto);
+
+        mockMvc.perform(get("/requests/1")
+                        .header("X-Sharer-User-Id", 1)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(itemRequestDto)));
     }
