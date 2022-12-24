@@ -98,7 +98,7 @@ public class BookingControllerTests {
 
     @Test
     void getAllBookingsTest() throws Exception {
-        when(bookingService.getBookingsForUser(any(), anyString()))
+        when(bookingService.getBookingsForUser(any(), anyString(), anyInt(), anyInt()))
                 .thenReturn(List.of(booking));
 
         this.mockMvc.perform(get("/bookings")
@@ -109,7 +109,7 @@ public class BookingControllerTests {
 
     @Test
     void getBookingForOwnerTest() throws Exception {
-        when(bookingService.getBookingsForOwner(anyInt(), anyString()))
+        when(bookingService.getBookingsForOwner(anyInt(), anyString(), anyInt(), anyInt()))
                 .thenReturn(List.of(booking));
 
         this.mockMvc.perform(get("/bookings/owner")
@@ -131,7 +131,7 @@ public class BookingControllerTests {
 
     @Test
     void getBookingForOwnerWithNotExistingOwnerTest() throws Exception {
-        when(bookingService.getBookingsForOwner(anyInt(), anyString()))
+        when(bookingService.getBookingsForOwner(anyInt(), anyString(), anyInt(), anyInt()))
                 .thenThrow(NotFoundException.class);
 
         this.mockMvc.perform(get("/bookings/owner")

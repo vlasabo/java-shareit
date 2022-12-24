@@ -63,7 +63,7 @@ public class ItemRequestService {
 
     public List<ItemRequestDto> getAll(Integer offset, Integer size, Integer userId) {
         var resultList = itemRequestRepository.findAllByUserIdNot(
-                        PageRequest.of(offset, size, Sort.by(Sort.Direction.ASC, "created")), userId)
+                        PageRequest.of(offset / size, size, Sort.by(Sort.Direction.ASC, "created")), userId)
                 .stream()
                 .map(RequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());

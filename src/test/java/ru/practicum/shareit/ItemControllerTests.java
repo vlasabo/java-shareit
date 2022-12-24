@@ -81,7 +81,7 @@ public class ItemControllerTests {
 
     @Test
     void getAllItemsTest() throws Exception {
-        when(itemService.getAllItems(1))
+        when(itemService.getAllItems(1, 0, 20))
                 .thenReturn(List.of(itemDto));
 
         this.mockMvc.perform(get("/items")

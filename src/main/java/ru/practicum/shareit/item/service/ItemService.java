@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 import ru.practicum.shareit.booking.dto.BookingMapper;
@@ -28,13 +30,14 @@ public class ItemService {
     private final CommentRepository commentRepository;
 
 
-    public List<ItemDto> getAllItems(int userId) {
+    public List<ItemDto> getAllItems(int userId, int offset, int size) {
         var itemsList = itemRepository.findAllByOwnerIdOrderById(userId);
         var itemIdList = itemsList.stream()
                 .map(Item::getId)
                 .collect(Collectors.toList());
-        var allItemsBookingList = bookingRepository.findAllByItemIdIn(itemIdList);
-
+        var allItemsBookingList = bookingRepository.findAllByItemIdIn(
+                        PageRequest.of(offset / size, size, Sort.by(Sort.Direction.ASC, "id")), itemIdList)
+                .toList();
         var allItemsCommentList = commentRepository.findAllByItemIdIn(itemIdList);
         var allAuthorsIdList = allItemsCommentList.stream()
                 .map(Comment::getAuthorId)

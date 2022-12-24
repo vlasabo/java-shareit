@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 import ru.practicum.shareit.booking.model.Booking;
@@ -109,7 +111,7 @@ public class BookingService {
         return booking;
     }
 
-    public List<Booking> getBookingsForUser(Integer userId, String stateString) {
+    public List<Booking> getBookingsForUser(Integer userId, String stateString, Integer offset, Integer size) {
         State state = State.valueOf(stateString);
         userService.findUserDtoById(userId);
         List<Booking> resultList;
@@ -131,7 +133,8 @@ public class BookingService {
                 resultList = bookingRepository.findAllByUserIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
                 break;
             default:
-                resultList = bookingRepository.findAllByUserIdOrderByStartDesc(userId);
+                resultList = bookingRepository.findAllByUserIdOrderByStartDesc(
+                        PageRequest.of(offset / size, size, Sort.by(Sort.Direction.ASC, "id")), userId).toList();
         }
         return resultList.stream()
                 .map(booking -> buildBooking(booking, userId))
@@ -139,7 +142,7 @@ public class BookingService {
     }
 
 
-    public List<Booking> getBookingsForOwner(Integer userId, String stateString) {
+    public List<Booking> getBookingsForOwner(Integer userId, String stateString, Integer offset, Integer size) {
         State state = State.valueOf(stateString);
         userService.findUserDtoById(userId);
         List<Booking> resultList;
@@ -161,7 +164,8 @@ public class BookingService {
                 resultList = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
                 break;
             default:
-                resultList = bookingRepository.findAllByItemOwnerIdOrderByStartDesc(userId);
+                resultList = bookingRepository.findAllByItemOwnerIdOrderByStartDesc(
+                        PageRequest.of(offset / size, size, Sort.by(Sort.Direction.ASC, "id")), userId).toList();
         }
         return resultList.stream()
                 .map(booking -> buildBooking(booking, userId))
