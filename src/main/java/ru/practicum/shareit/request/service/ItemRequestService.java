@@ -1,6 +1,8 @@
 package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemMapper;
@@ -57,5 +59,15 @@ public class ItemRequestService {
             fillItemsList(result);
             return result;
         }
+    }
+
+    public List<ItemRequestDto> getAll(Integer offset, Integer size, Integer userId) {
+        var resultList = itemRequestRepository.findAllByUserIdNot(
+                        PageRequest.of(offset, size, Sort.by(Sort.Direction.ASC, "created")), userId)
+                .stream()
+                .map(RequestMapper::toItemRequestDto)
+                .collect(Collectors.toList());
+        resultList.forEach(this::fillItemsList);
+        return resultList;
     }
 }
