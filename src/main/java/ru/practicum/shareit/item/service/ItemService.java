@@ -89,7 +89,7 @@ public class ItemService {
             var userListFromComment = userService.findAllUsersInList(commentList.stream()
                     .map(Comment::getAuthorId)
                     .collect(Collectors.toList()));
-            if (itemOpt.get().getOwnerId().equals(userId)) {
+            if (Objects.equals(itemOpt.get().getOwnerId(), userId)) {
                 var allItemsBookingList = bookingRepository.findAllByItemIdIn(List.of(id));
                 return addCommentsToItemDto(setBookingsToItemDto(ItemMapper.toItemDto(itemOpt.get()), allItemsBookingList),
                         commentList, userListFromComment);

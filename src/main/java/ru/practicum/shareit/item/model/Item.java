@@ -8,6 +8,7 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -35,6 +36,22 @@ public class Item {
         this.description = description;
         this.available = available;
         this.requestId = requestId;
+    }
+
+    @Override
+    public int hashCode() {
+        int prime = 31;
+        return prime * Objects.hash(name, id, description);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return id == item.id &&
+                Objects.equals(name, item.name) &&
+                Objects.equals(description, item.description);
     }
 
 }
