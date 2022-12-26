@@ -44,10 +44,6 @@ public class ItemControllerTests {
 
     private ItemDto itemDto;
     private UserDto userDto;
-    private final String ITEM_DTO_AS_JSON_STRING =
-            "[{\"id\":1,\"name\":\"name\",\"description\":\"desc\",\"available\":true,\"owner\":null," +
-                    "\"itemRequest\":null,\"ownerId\":null,\"requestId\":null,\"lastBooking\":null," +
-                    "\"nextBooking\":null,\"comments\":[]}]";
 
     @BeforeEach
     void setUp() throws Exception {
@@ -84,10 +80,13 @@ public class ItemControllerTests {
         when(itemService.getAllItems(1, 0, 20))
                 .thenReturn(List.of(itemDto));
 
+        String itemDtoAsJsonString = "[{\"id\":1,\"name\":\"name\",\"description\":\"desc\",\"available\":true,\"owner\":null," +
+                "\"itemRequest\":null,\"ownerId\":null,\"requestId\":null,\"lastBooking\":null," +
+                "\"nextBooking\":null,\"comments\":[]}]";
         this.mockMvc.perform(get("/items")
                         .header("X-Sharer-User-Id", 1))
                 .andExpect(status().isOk())
-                .andExpect(content().json(ITEM_DTO_AS_JSON_STRING));
+                .andExpect(content().json(itemDtoAsJsonString));
     }
 
     @Test
