@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserRepository userRepository;
 
-
     public UserDto save(User user) {
         User userSaved = userRepository.save(user);
         return UserMapper.toUserDto(userSaved);
