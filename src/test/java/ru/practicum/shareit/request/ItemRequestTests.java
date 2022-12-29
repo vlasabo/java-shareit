@@ -1,4 +1,4 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @ExtendWith(MockitoExtension.class)
-public class ItemRequestControllerTests {
+public class ItemRequestTests {
 
     @Autowired
     private MockMvc mockMvc;
