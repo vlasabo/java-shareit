@@ -8,6 +8,7 @@ import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -30,5 +31,21 @@ public class ItemRequest {
         this.description = description;
         this.userId = userId;
         this.created = created;
+    }
+
+    @Override
+    public int hashCode() {
+        int prime = 31;
+        return prime * Objects.hash(id, description, userId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ItemRequest itemRequest = (ItemRequest) o;
+        return id == itemRequest.id &&
+                userId == itemRequest.userId &&
+                Objects.equals(description, itemRequest.description);
     }
 }

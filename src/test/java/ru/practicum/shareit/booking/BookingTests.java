@@ -16,6 +16,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.webjars.NotFoundException;
 import ru.practicum.shareit.booking.controller.BookingController;
+import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.dto.BookingWithItemDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -493,5 +495,11 @@ public class BookingTests {
         this.mockMvc.perform(get("/bookings/100")
                         .header("X-Sharer-User-Id", 100))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void bookingDtoTest() {
+        BookingWithItemDto bookingWithItemDto = new BookingWithItemDto(1, 2);
+        Assertions.assertEquals(BookingMapper.toBookingWithItemDto(booking), bookingWithItemDto);
     }
 }

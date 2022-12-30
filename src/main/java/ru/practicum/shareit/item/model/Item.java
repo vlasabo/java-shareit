@@ -31,11 +31,12 @@ public class Item {
     private Integer ownerId;
     private Integer requestId;
 
-    public Item(String name, String description, boolean available, Integer requestId) {
+    public Item(String name, String description, boolean available, Integer requestId, int id) {
         this.name = name;
         this.description = description;
         this.available = available;
         this.requestId = requestId;
+        this.id = id;
     }
 
     @Override
