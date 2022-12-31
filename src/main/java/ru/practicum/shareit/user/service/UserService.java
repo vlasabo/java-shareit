@@ -11,7 +11,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -26,11 +25,8 @@ public class UserService {
     }
 
     private boolean checkEmailUniqueness(User user) {
-        String email = user.getEmail();
-        return userRepository.findAll()
-                .stream()
-                .anyMatch(checkedUser -> (Objects.equals(checkedUser.getEmail(), email)
-                        && !Objects.equals(checkedUser.getId(), user.getId())));
+        var userOpt = userRepository.findUserByEmailAndId(user.getEmail(), user.getId());
+        return userOpt.isPresent();
     }
 
     public List<UserDto> getAllUsers() {
@@ -39,7 +35,7 @@ public class UserService {
     }
 
     public UserDto findUserDtoById(int id) {
-        var userDtoOpt = userRepository.findById(id);
+        var userDtoOpt = findUserById(id);
         if (userDtoOpt.isPresent()) {
             return UserMapper.toUserDto(userDtoOpt.get());
         } else {
@@ -75,7 +71,7 @@ public class UserService {
         }
         var userFromDbOpt = findUserById(id);
         if (userFromDbOpt.isEmpty()) {
-            throw new NotFoundException("mo user with id " + id);
+            throw new NotFoundException("no user with id " + id);
         }
         return save(patchUser(userFromDbOpt.get(), user));
     }

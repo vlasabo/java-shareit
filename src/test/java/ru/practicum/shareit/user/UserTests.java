@@ -110,8 +110,8 @@ public class UserTests {
 
     @Test
     public void updateUserWithNotUniqueEmail() {
-        Mockito.when(userRepository.findAll())
-                .thenReturn(usersList);
+        Mockito.when(userRepository.findUserByEmailAndId("testEmail@email.com1", 1))
+                .thenReturn(Optional.of(usersList.get(1)));
 
         User upd = usersList.get(1);
         upd.setId(1);
@@ -269,20 +269,19 @@ public class UserTests {
 
     @Test
     public void updateFieldsUserWithNotUniqueEmail() {
-        Mockito.when(userRepository.findAll())
-                .thenReturn(usersList);
+        Mockito.when(userRepository.findUserByEmailAndId("testEmail@email.com1", 1))
+                .thenReturn(Optional.of(usersList.get(1)));
 
-        User upd = usersList.get(1);
+        User upd = new User();
         upd.setId(1);
         upd.setEmail("testEmail@email.com1");
         Assertions.assertThrows(CustomValidateException.class, () ->
-                userService2.updateFields(1, UserMapper.toUserDto(usersList.get(1))));
+                userService2.updateFields(1, UserMapper.toUserDto(upd)));
     }
 
     @Test
     public void updateFieldsUserWithIncorrectId() {
-        Mockito.when(userRepository.findAll())
-                .thenReturn(usersList);
+
         Mockito.when(userRepository.findById(1))
                 .thenReturn(Optional.empty());
         User upd = usersList.get(1);
@@ -293,8 +292,6 @@ public class UserTests {
 
     @Test
     public void updateFieldsCorrectUser() {
-        Mockito.when(userRepository.findAll())
-                .thenReturn(usersList);
         Mockito.when(userRepository.findById(1))
                 .thenReturn(Optional.of(usersList.get(1)));
         Mockito.when(userRepository.save(Mockito.any()))
@@ -312,6 +309,7 @@ public class UserTests {
             UserDto userDto = new UserDto();
             userDto.setName("test" + i);
             userDto.setEmail("testEmail@email.com" + i);
+            userDto.setId(i);
             usersList.add(userDto);
         }
         return usersList;
@@ -323,6 +321,7 @@ public class UserTests {
             User user = new User();
             user.setName("test" + i);
             user.setEmail("testEmail@email.com" + i);
+            user.setId(i);
             usersList.add(user);
         }
         return usersList;

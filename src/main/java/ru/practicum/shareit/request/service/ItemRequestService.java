@@ -6,6 +6,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.dto.ItemToRequestDto;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -37,16 +39,24 @@ public class ItemRequestService {
         var resultList = itemRequestRepository.findAllByUserIdOrderByCreated(userId).stream()
                 .map(RequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
-        resultList.forEach(this::fillItemsList);
+        fillItemsList(resultList);
         return resultList;
     }
 
-    private void fillItemsList(ItemRequestDto itemRequestDto) {
-        Integer itemRequestId = itemRequestDto.getId();
-        var itemsList = itemRepository.findAllByRequestId(itemRequestId).stream()
+
+    private void fillItemsList(List<ItemRequestDto> itemRequestDtoList) {
+        var itemRequestsId = itemRequestDtoList.stream()
+                .map(ItemRequestDto::getId)
+                .collect(Collectors.toList());
+        var allRequestsItemsList = itemRepository.findAllByRequestIdIsIn(itemRequestsId);
+        itemRequestDtoList.forEach(request -> request.setItems(getItemsList(allRequestsItemsList, request.getId())));
+    }
+
+    private List<ItemToRequestDto> getItemsList(List<Item> itemsList, int requestId) {
+        return itemsList.stream()
+                .filter(item -> item.getRequestId() == requestId)
                 .map(ItemMapper::toItemToRequestDto)
                 .collect(Collectors.toList());
-        itemRequestDto.setItems(itemsList);
     }
 
     public ItemRequestDto getRequestById(Integer id, Integer userId) {
@@ -56,7 +66,7 @@ public class ItemRequestService {
             throw new NotFoundException("no request with id" + id);
         } else {
             ItemRequestDto result = RequestMapper.toItemRequestDto(itemRequestOptional.get());
-            fillItemsList(result);
+            fillItemsList(List.of(result));
             return result;
         }
     }
@@ -67,7 +77,7 @@ public class ItemRequestService {
                 .stream()
                 .map(RequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
-        resultList.forEach(this::fillItemsList);
+        fillItemsList(resultList);
         return resultList;
     }
 }
