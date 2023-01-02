@@ -1,29 +1,32 @@
-package ru.practicum.shareit.request.dto;
+package ru.practicum.shareit.request.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.shareit.item.dto.ItemToRequestDto;
+import ru.practicum.shareit.user.model.User;
 
-import javax.validation.constraints.NotBlank;
+import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
-public class ItemRequestDto {
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity()
+@Table(name = "item_request")
+public class ItemRequest {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @NotBlank
     private String description;
+    @Transient
+    private User requestor;
     private int userId;
     private LocalDateTime created;
-    private List<ItemToRequestDto> items;
 
-    public ItemRequestDto(int id, String description, int userId, LocalDateTime created) {
+    public ItemRequest(int id, String description, int userId, LocalDateTime created) {
         this.id = id;
         this.description = description;
         this.userId = userId;
@@ -40,9 +43,9 @@ public class ItemRequestDto {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ItemRequestDto itemRequestDto = (ItemRequestDto) o;
-        return id == itemRequestDto.id &&
-                userId == itemRequestDto.userId &&
-                Objects.equals(description, itemRequestDto.description);
+        ItemRequest itemRequest = (ItemRequest) o;
+        return id == itemRequest.id &&
+                userId == itemRequest.userId &&
+                Objects.equals(description, itemRequest.description);
     }
 }

@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -19,9 +20,11 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") int userId) {
+    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") int userId,
+                                     @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer offset,
+                                     @RequestParam(value = "size", defaultValue = "20") @Min(1) Integer size) {
         log.debug("get all items");
-        return itemService.getAllItems(userId);
+        return itemService.getAllItems(userId, offset, size);
     }
 
     @GetMapping("/{id}")
