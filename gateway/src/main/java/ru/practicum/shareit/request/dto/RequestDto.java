@@ -1,5 +1,4 @@
-package ru.practicum.shareit.item.dto;
-
+package ru.practicum.shareit.request.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,14 +6,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentDto {
-    @NotNull
+@Getter
+@Setter
+public class RequestDto {
     @NotBlank
-    String text;
+    private String description;
+    private int userId;
+    private LocalDateTime created;
+
 }
