@@ -1,8 +1,8 @@
-drop table booking;
-drop table comments;
-drop table items;
-drop table item_request;
-drop table users;
+drop table if exists booking;
+drop table if exists comments;
+drop table if exists items;
+drop table if exists item_request;
+drop table if exists users;
 
 CREATE TABLE IF NOT EXISTS users
 (
