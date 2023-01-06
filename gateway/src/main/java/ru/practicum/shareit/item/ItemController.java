@@ -8,7 +8,8 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,8 +20,8 @@ public class ItemController {
 
     @GetMapping
     public ResponseEntity<Object> getAllItems(@RequestHeader("X-Sharer-User-Id") int userId,
-                                              @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer offset,
-                                              @RequestParam(value = "size", defaultValue = "20") @Min(1) Integer size) {
+                                              @PositiveOrZero @RequestParam(value = "from", defaultValue = "0") Integer offset,
+                                              @Positive @RequestParam(value = "size", defaultValue = "20") Integer size) {
         log.debug("get all items");
         return itemClient.getAllItems(userId, offset, size);
     }

@@ -12,9 +12,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.webjars.NotFoundException;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.Comment;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -147,7 +146,9 @@ public class ItemTests {
                 "\"itemRequest\":null,\"ownerId\":null,\"requestId\":null,\"lastBooking\":null," +
                 "\"nextBooking\":null,\"comments\":[]}]";
         this.mockMvc.perform(get("/items")
-                        .header("X-Sharer-User-Id", 1))
+                        .header("X-Sharer-User-Id", 1)
+                        .param("from", "0")
+                        .param("size", "20"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(itemDtoAsJsonString));
     }
