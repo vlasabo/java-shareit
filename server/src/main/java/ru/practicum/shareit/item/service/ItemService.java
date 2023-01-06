@@ -147,7 +147,7 @@ public class ItemService {
         if (text.length() == 0) {
             return new ArrayList<>();
         }
-        return itemRepository.searchAvailableItemByNameOrDescr(text, true).stream()
+        return itemRepository.searchAvailableItemByNameOrDescr(text.toLowerCase(), true).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
