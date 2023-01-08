@@ -279,7 +279,9 @@ public class BookingTests {
                 .thenReturn(List.of(booking));
 
         this.mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", 1))
+                        .header("X-Sharer-User-Id", 1)
+                        .param("from", "0")
+                        .param("size", "20"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(List.of(booking))));
     }
@@ -334,7 +336,9 @@ public class BookingTests {
                 .thenReturn(List.of(booking));
 
         this.mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", 1))
+                        .header("X-Sharer-User-Id", 1)
+                        .param("from", "0")
+                        .param("size", "20"))
                 .andExpect(content().json(objectMapper.writeValueAsString(List.of(booking))))
                 .andExpect(status().isOk());
     }
@@ -483,7 +487,9 @@ public class BookingTests {
                 .thenThrow(NotFoundException.class);
 
         this.mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", 4))
+                        .header("X-Sharer-User-Id", 4)
+                        .param("from", "0")
+                        .param("size", "20"))
                 .andExpect(status().isNotFound());
     }
 
